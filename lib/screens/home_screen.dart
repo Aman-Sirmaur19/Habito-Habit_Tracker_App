@@ -18,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+  int _expandedIndex = -1;
+
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
@@ -38,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen>
                     showDialog(
                         context: context,
                         builder: (context) {
-                          return const NewHabit();
+                          return const NewHabit(habit: null);
                         });
                   },
                   tooltip: 'Add Habit',
@@ -68,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
                 : ListView.builder(
                     itemCount: habits.length,
                     itemBuilder: (context, index) {
+                      final isExpanded = _expandedIndex == index;
                       for (var habit in habits) {
                         if (habit.time.day != DateTime.now().day) {
                           habit.time = DateTime.now();
@@ -84,31 +87,45 @@ class _HomeScreenState extends State<HomeScreen>
                         }
                       }
                       return Card(
+                          // color: Colors.purple.shade50,
                           margin: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 5,
                           ),
-                          child: ListTile(
-                            title: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Column(
+                            children: [
+                              ListTile(
+                                onTap: () {
+                                  setState(() {
+                                    _expandedIndex = isExpanded
+                                        ? -1
+                                        : index; // Toggle expanded state
+                                  });
+                                },
+                                title: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      habits[index].title,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w500),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          habits[index].title,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                        if (habits[index]
+                                            .description
+                                            .isNotEmpty)
+                                          Text(habits[index].description,
+                                              style: const TextStyle(
+                                                  fontSize: 13)),
+                                      ],
                                     ),
-                                    if (habits[index].description.isNotEmpty)
-                                      Text(habits[index].description,
-                                          style: const TextStyle(fontSize: 13)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    GestureDetector(
+                                    InkWell(
+                                        borderRadius: BorderRadius.circular(30),
                                         onTap: () {
                                           setState(() {
                                             if (habits[index].current ==
@@ -148,40 +165,102 @@ class _HomeScreenState extends State<HomeScreen>
                                           current: habits[index].current,
                                           target: habits[index].target,
                                         )),
-                                    IconButton(
-                                        onPressed: () {
-                                          base.dataStore.deleteHabit(
-                                              habit: habits[index]);
-                                          Dialogs.showSnackBar(context,
-                                              'Habit deleted successfully!');
-                                        },
-                                        icon: const Icon(Icons.delete)),
                                   ],
                                 ),
-                              ],
-                            ),
-                            subtitle: HeatMap(
-                              datasets: habits[index].datasets,
-                              endDate: DateTime.now(),
-                              scrollable: true,
-                              showText: false,
-                              showColorTip: false,
-                              colorMode: ColorMode.color,
-                              size: 12,
-                              fontSize: 10,
-                              colorsets: const {
-                                1: Color.fromARGB(20, 2, 179, 8),
-                                2: Color.fromARGB(40, 2, 179, 8),
-                                3: Color.fromARGB(60, 2, 179, 8),
-                                4: Color.fromARGB(80, 2, 179, 8),
-                                5: Color.fromARGB(100, 2, 179, 8),
-                                6: Color.fromARGB(120, 2, 179, 8),
-                                7: Color.fromARGB(150, 2, 179, 8),
-                                8: Color.fromARGB(180, 2, 179, 8),
-                                9: Color.fromARGB(220, 2, 179, 8),
-                                10: Color.fromARGB(255, 2, 179, 8),
-                              },
-                            ),
+                                subtitle: HeatMap(
+                                  datasets: habits[index].datasets,
+                                  endDate: DateTime.now(),
+                                  scrollable: true,
+                                  showText: false,
+                                  showColorTip: false,
+                                  colorMode: ColorMode.color,
+                                  size: 12,
+                                  fontSize: 10,
+                                  defaultColor: Colors.blueGrey.shade100,
+                                  onClick: (value) {
+                                    setState(() {
+                                      _expandedIndex = isExpanded
+                                          ? -1
+                                          : index; // Toggle expanded state
+                                    });
+                                  },
+                                  colorsets: const {
+                                    1: Color.fromARGB(40, 33, 150, 243),
+                                    2: Color.fromARGB(60, 33, 150, 243),
+                                    3: Color.fromARGB(80, 33, 150, 243),
+                                    4: Color.fromARGB(100, 33, 150, 243),
+                                    5: Color.fromARGB(125, 33, 150, 243),
+                                    6: Color.fromARGB(150, 33, 150, 243),
+                                    7: Color.fromARGB(180, 33, 150, 243),
+                                    8: Color.fromARGB(210, 33, 150, 243),
+                                    9: Color.fromARGB(230, 33, 150, 243),
+                                    10: Color.fromARGB(255, 2, 179, 8),
+                                  },
+                                ),
+                              ),
+                              if (isExpanded)
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return NewHabit(
+                                                    habit: habits[index]);
+                                              });
+                                        },
+                                        tooltip: 'Edit',
+                                        icon: const Icon(Icons.edit)),
+                                    IconButton(
+                                        onPressed: () => showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title:
+                                                    const Text('Are you sure?'),
+                                                content: const Text(
+                                                    'Do you want to delete this?'),
+                                                actions: <Widget>[
+                                                  Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      children: [
+                                                        TextButton(
+                                                            child: const Text(
+                                                                'Yes'),
+                                                            onPressed: () {
+                                                              base.dataStore
+                                                                  .deleteHabit(
+                                                                      habit: habits[
+                                                                          index]);
+                                                              Navigator.of(ctx)
+                                                                  .pop();
+                                                              Dialogs.showSnackBar(
+                                                                  context,
+                                                                  'Habit deleted successfully!');
+                                                            }),
+                                                        TextButton(
+                                                            child: const Text(
+                                                                'No'),
+                                                            onPressed: () {
+                                                              Navigator.of(ctx)
+                                                                  .pop();
+                                                            }),
+                                                      ])
+                                                ],
+                                              ),
+                                            ),
+                                        tooltip: 'Delete',
+                                        icon: Icon(Icons.delete,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .error)),
+                                  ],
+                                )
+                            ],
                           ));
                     }),
           );

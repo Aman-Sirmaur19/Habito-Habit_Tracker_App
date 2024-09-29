@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -5,7 +7,9 @@ import '../models/habit.dart';
 import 'dialogs.dart';
 
 class NewHabit extends StatefulWidget {
-  const NewHabit({super.key});
+  const NewHabit({super.key, required this.habit});
+
+  final Habit? habit;
 
   @override
   State<NewHabit> createState() => _NewHabitState();
@@ -16,8 +20,27 @@ class _NewHabitState extends State<NewHabit> {
   final _descriptionController = TextEditingController();
   int _target = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.habit != null) {
+      _titleController.text = widget.habit!.title;
+      _descriptionController.text = widget.habit!.description;
+      _target = widget.habit!.target;
+    }
+  }
+
+  // if habit already exist return true, else false
+  bool isHabitAlreadyExist() {
+    if (widget.habit != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Main function for creating habit
-  dynamic _createHabit() {
+  dynamic _createOrUpdateHabit() {
     if (_titleController.text.trim().isEmpty) {
       Dialogs.showErrorSnackBar(context, 'Enter Habit name');
     } else if (_descriptionController.text.trim().isEmpty) {
@@ -25,23 +48,51 @@ class _NewHabitState extends State<NewHabit> {
     } else if (_target == 0) {
       Dialogs.showErrorSnackBar(context, 'Set Target');
     } else {
-      var habit = Habit.create(
-        time: DateTime.now(),
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        current: 0,
-        target: _target,
-        datasets: {
-          DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-          ): (10 * 0) ~/ _target
-        },
-      );
-      // We are adding this new habit to Hive DB using inherited widget
-      BaseWidget.of(context).dataStore.addHabit(habit: habit);
-      Dialogs.showSnackBar(context, 'Habit created successfully!');
+      if (widget.habit != null) {
+        try {
+          widget.habit?.title = _titleController.text.trim();
+          widget.habit?.description = _descriptionController.text.trim();
+          if (widget.habit?.target != _target) {
+            widget.habit?.target = _target;
+            if (widget.habit!.current > _target) {
+              widget.habit?.current = _target;
+            }
+            final percentForEachDay = <DateTime, int>{
+              DateTime(
+                DateTime.now().year,
+                DateTime.now().month,
+                DateTime.now().day,
+              ): 10 * widget.habit!.current ~/ widget.habit!.target,
+            };
+            widget.habit?.datasets.addEntries(percentForEachDay.entries);
+          }
+          widget.habit?.save(); // OR
+          // var habit0 = widget.habit;
+          // BaseWidget.of(context).dataStore.updateHabit(habit: habit0!);
+
+          Dialogs.showSnackBar(context, 'Habit updated successfully!');
+        } catch (error) {
+          log(error.toString());
+        }
+      } else {
+        var habit = Habit.create(
+          time: DateTime.now(),
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          current: 0,
+          target: _target,
+          datasets: {
+            DateTime(
+              DateTime.now().year,
+              DateTime.now().month,
+              DateTime.now().day,
+            ): (10 * 0) ~/ _target
+          },
+        );
+        // We are adding this new habit to Hive DB using inherited widget
+        BaseWidget.of(context).dataStore.addHabit(habit: habit);
+        Dialogs.showSnackBar(context, 'Habit created successfully!');
+      }
       Navigator.pop(context);
     }
   }
@@ -123,7 +174,9 @@ class _NewHabitState extends State<NewHabit> {
               Navigator.of(context).pop();
             },
             child: const Text('Cancel')),
-        TextButton(onPressed: _createHabit, child: const Text('Add')),
+        TextButton(
+            onPressed: _createOrUpdateHabit,
+            child: Text(isHabitAlreadyExist() ? 'Update' : 'Add')),
       ],
     );
   }
