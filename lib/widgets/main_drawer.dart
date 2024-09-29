@@ -35,7 +35,7 @@ class MainDrawer extends StatelessWidget {
       decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
         Theme.of(context).colorScheme.inversePrimary,
-        Colors.purple.shade400,
+        Colors.blue.shade400,
       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
       child: Column(
         children: <Widget>[
@@ -79,6 +79,11 @@ class MainDrawer extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Divider(),
+                          Text(
+                            '\n\u2022 Click on the card for more settings.\n',
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
                           Text(
                             '\u2022 Copyright section is \'clickable\'.',
                             style: TextStyle(

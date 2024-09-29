@@ -6,7 +6,8 @@ class CircleSegmentWidget extends StatefulWidget {
   final int current;
   final int target;
 
-  const CircleSegmentWidget({super.key,
+  const CircleSegmentWidget({
+    super.key,
     required this.current,
     required this.target,
   });
@@ -48,7 +49,9 @@ class CircleArcPainter extends CustomPainter {
     final Paint coloredPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5.0 // Increase stroke width for the colored arcs
-      ..color = const Color.fromARGB(255, 2, 179, 8);
+      ..color = coloredSegments == totalSegments
+          ? const Color.fromARGB(255, 2, 179, 8)
+          : const Color.fromARGB(255, 33, 150, 243);
 
     final center = Offset(size.width / 2, size.height / 2);
     final radius =
