@@ -19,7 +19,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
 
     // Cast the map directly to Map<DateTime, int>
     final datasets = (fields[6] as Map).map<DateTime, int>(
-          (key, value) => MapEntry(key as DateTime, value as int),
+      (key, value) => MapEntry(key as DateTime, value as int),
     );
 
     return Habit(
@@ -30,13 +30,14 @@ class HabitAdapter extends TypeAdapter<Habit> {
       current: fields[4] as int,
       target: fields[5] as int,
       datasets: datasets,
+      streak: fields[7] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(5)
       ..write(obj.target)
       ..writeByte(6)
-      ..write(obj.datasets);
+      ..write(obj.datasets)
+      ..writeByte(7)
+      ..write(obj.streak);
   }
 
   @override

@@ -12,6 +12,7 @@ class Habit extends HiveObject {
   int current;
   int target;
   Map<DateTime, int> datasets;
+  int streak;
 
   Habit({
     @HiveField(0) required this.id,
@@ -21,6 +22,7 @@ class Habit extends HiveObject {
     @HiveField(4) required this.current,
     @HiveField(5) required this.target,
     @HiveField(6) required this.datasets,
+    @HiveField(6) required this.streak,
   });
 
   // create new habit
@@ -31,6 +33,7 @@ class Habit extends HiveObject {
     int? current,
     required int target,
     Map<DateTime, int>? datasets,
+    int? streak,
   }) =>
       Habit(
         id: const Uuid().v1(),
@@ -40,5 +43,6 @@ class Habit extends HiveObject {
         current: current ?? 0,
         target: target,
         datasets: datasets ?? {},
+        streak: streak ?? 0,
       );
 }

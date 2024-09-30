@@ -4,6 +4,7 @@ import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 import '../main.dart';
 import '../models/habit.dart';
+import '../widgets/app_name.dart';
 import '../widgets/circle_segment_widget.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/main_drawer.dart';
@@ -19,21 +20,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _expandedIndex = -1;
+  bool isTodayTaskDone = false;
 
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
+
     return ValueListenableBuilder(
         valueListenable: base.dataStore.listenToHabit(),
         builder: (ctx, Box<Habit> box, Widget? child) {
           List<Habit> habits = box.values.toList();
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text(
-                'HABITO',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              title: const AppName(),
               actions: [
                 IconButton(
                   onPressed: () {
@@ -43,29 +42,47 @@ class _HomeScreenState extends State<HomeScreen>
                           return const NewHabit(habit: null);
                         });
                   },
-                  tooltip: 'Add Habit',
+                  tooltip: 'Add habit',
                   icon: const Icon(Icons.add),
                 )
               ],
             ),
             drawer: const MainDrawer(),
             body: habits.isEmpty
-                ? ListView(
-                    padding: EdgeInsets.only(top: mq.height * .15),
-                    children: [
-                      Center(
+                ? Center(
+                    child: SizedBox(
+                      width: 170,
+                      child: SingleChildScrollView(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('No habits added yet!',
+                            Image.asset('assets/images/calender.png'),
+                            const SizedBox(height: 10),
+                            const Text(
+                                'A journey of a thousand miles begins with a single step!',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 30)),
-                            const SizedBox(height: 15),
-                            Image.asset('assets/images/waiting.png',
-                                height: mq.height * .35)
+                                    fontWeight: FontWeight.bold, fontSize: 15)),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                                style: const ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(Colors.blue),
+                                  foregroundColor:
+                                      MaterialStatePropertyAll(Colors.white),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const NewHabit(habit: null);
+                                      });
+                                },
+                                child: const Text('Get Started'))
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   )
                 : ListView.builder(
                     itemCount: habits.length,
@@ -73,6 +90,11 @@ class _HomeScreenState extends State<HomeScreen>
                       final isExpanded = _expandedIndex == index;
                       for (var habit in habits) {
                         if (habit.time.day != DateTime.now().day) {
+                          if (habit.current == habit.target) {
+                            habit.streak++;
+                          } else {
+                            habit.streak = 0;
+                          }
                           habit.time = DateTime.now();
                           habit.current = 0;
                           final percentForEachDay = <DateTime, int>{
@@ -87,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen>
                         }
                       }
                       return Card(
-                          // color: Colors.purple.shade50,
                           margin: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 5,
@@ -114,14 +135,16 @@ class _HomeScreenState extends State<HomeScreen>
                                         Text(
                                           habits[index].title,
                                           style: const TextStyle(
-                                              fontWeight: FontWeight.w500),
+                                              fontWeight: FontWeight.bold),
                                         ),
                                         if (habits[index]
                                             .description
                                             .isNotEmpty)
                                           Text(habits[index].description,
                                               style: const TextStyle(
-                                                  fontSize: 13)),
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
+                                              )),
                                       ],
                                     ),
                                     InkWell(
@@ -130,6 +153,10 @@ class _HomeScreenState extends State<HomeScreen>
                                           setState(() {
                                             if (habits[index].current ==
                                                 habits[index].target) {
+                                              if (isTodayTaskDone) {
+                                                isTodayTaskDone = false;
+                                                habits[index].streak--;
+                                              }
                                               habits[index].current = 0;
                                               final percentForEachDay =
                                                   <DateTime, int>{
@@ -145,6 +172,11 @@ class _HomeScreenState extends State<HomeScreen>
                                                   percentForEachDay.entries);
                                             } else {
                                               habits[index].current++;
+                                              if (habits[index].current ==
+                                                  habits[index].target) {
+                                                habits[index].streak++;
+                                                isTodayTaskDone = true;
+                                              }
                                               final percentForEachDay =
                                                   <DateTime, int>{
                                                 DateTime(
@@ -204,16 +236,46 @@ class _HomeScreenState extends State<HomeScreen>
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     IconButton(
-                                        onPressed: () {
-                                          showDialog(
+                                        onPressed: () async {
+                                          await showDialog(
                                               context: context,
                                               builder: (context) {
                                                 return NewHabit(
                                                     habit: habits[index]);
                                               });
+                                          if (isTodayTaskDone &&
+                                              habits[index].current !=
+                                                  habits[index].target) {
+                                            isTodayTaskDone = false;
+                                            habits[index].streak--;
+                                            habits[index].save();
+                                          }
                                         },
                                         tooltip: 'Edit',
                                         icon: const Icon(Icons.edit)),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Colors.white),
+                                      child: Row(
+                                        children: [
+                                          const Text('Current streak:\t',
+                                              style: TextStyle(
+                                                  color: Colors.blueGrey,
+                                                  fontWeight: FontWeight.bold)),
+                                          const Icon(
+                                            Icons.local_fire_department_rounded,
+                                            color: Colors.orange,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Text(habits[index].streak.toString(),
+                                              style: const TextStyle(
+                                                  color: Colors.orange,
+                                                  fontWeight: FontWeight.bold)),
+                                        ],
+                                      ),
+                                    ),
                                     IconButton(
                                         onPressed: () => showDialog(
                                               context: context,
