@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../models/habit.dart';
+import 'app_name.dart';
 import 'dialogs.dart';
 
 class NewHabit extends StatefulWidget {
@@ -100,7 +101,7 @@ class _NewHabitState extends State<NewHabit> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Habit'),
+      title: const AppName(),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -138,7 +139,12 @@ class _NewHabitState extends State<NewHabit> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Target', style: TextStyle(fontSize: 17)),
+                Text('Target per day',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade700,
+                    )),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

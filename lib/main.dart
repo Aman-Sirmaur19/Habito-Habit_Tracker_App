@@ -33,7 +33,7 @@ class BaseWidget extends InheritedWidget {
 
   static BaseWidget of(BuildContext context) {
     final BaseWidget? result =
-    context.dependOnInheritedWidgetOfExactType<BaseWidget>();
+        context.dependOnInheritedWidgetOfExactType<BaseWidget>();
     assert(result != null, 'No BaseWidget found in context');
     return result!;
   }
@@ -56,6 +56,9 @@ class MyApp extends StatelessWidget {
       title: 'HABITO',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        iconButtonTheme: IconButtonThemeData(
+            style: ButtonStyle(
+                foregroundColor: MaterialStateProperty.all(Colors.blue))),
         useMaterial3: true,
       ),
       home: const HomeScreen(),
