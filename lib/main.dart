@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
     mq = MediaQuery.of(context).size;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'HABITO',
+      title: 'HabitO',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         iconButtonTheme: IconButtonThemeData(
