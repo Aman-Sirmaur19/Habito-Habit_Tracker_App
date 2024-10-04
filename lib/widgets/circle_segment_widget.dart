@@ -23,7 +23,7 @@ class _CircleSegmentWidgetState extends State<CircleSegmentWidget> {
       alignment: Alignment.center,
       children: [
         if (widget.current < widget.target) Text(widget.current.toString()),
-        if (widget.current == widget.target) const Icon(Icons.check),
+        if (widget.current == widget.target) const Icon(Icons.check_rounded),
         CustomPaint(
           size: const Size(60, 60), // Size of the canvas
           painter: CircleArcPainter(widget.current, widget.target),

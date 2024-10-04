@@ -31,13 +31,14 @@ class HabitAdapter extends TypeAdapter<Habit> {
       target: fields[5] as int,
       datasets: datasets,
       streak: fields[7] as int,
+      isTodayTaskDone: fields[8] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(6)
       ..write(obj.datasets)
       ..writeByte(7)
-      ..write(obj.streak);
+      ..write(obj.streak)
+      ..writeByte(8)
+      ..write(obj.isTodayTaskDone);
   }
 
   @override

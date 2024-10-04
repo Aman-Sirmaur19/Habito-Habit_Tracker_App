@@ -13,6 +13,7 @@ class Habit extends HiveObject {
   int target;
   Map<DateTime, int> datasets;
   int streak;
+  bool isTodayTaskDone;
 
   Habit({
     @HiveField(0) required this.id,
@@ -22,7 +23,8 @@ class Habit extends HiveObject {
     @HiveField(4) required this.current,
     @HiveField(5) required this.target,
     @HiveField(6) required this.datasets,
-    @HiveField(6) required this.streak,
+    @HiveField(7) required this.streak,
+    @HiveField(8) required this.isTodayTaskDone,
   });
 
   // create new habit
@@ -34,6 +36,7 @@ class Habit extends HiveObject {
     required int target,
     Map<DateTime, int>? datasets,
     int? streak,
+    required bool isTodayTaskDone,
   }) =>
       Habit(
         id: const Uuid().v1(),
@@ -44,5 +47,6 @@ class Habit extends HiveObject {
         target: target,
         datasets: datasets ?? {},
         streak: streak ?? 0,
+        isTodayTaskDone: isTodayTaskDone,
       );
 }

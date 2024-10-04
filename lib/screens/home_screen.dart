@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
@@ -8,7 +9,7 @@ import '../widgets/app_name.dart';
 import '../widgets/circle_segment_widget.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/main_drawer.dart';
-import '../widgets/new_habit.dart';
+import 'habit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,34 +21,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _expandedIndex = -1;
-  bool isTodayTaskDone = false;
 
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
-    // base.dataStore.addHabit(
-    //     habit: Habit(
-    //   id: '0',
-    //   time: DateTime.now().subtract(const Duration(days: 1)),
-    //   title: 'GYM',
-    //   description: '2 times a day',
-    //   current: 2,
-    //   target: 2,
-    //   datasets: {DateTime(2024, 10, 2): 10},
-    //   streak: 1,
-    // ));
-    // base.dataStore.addHabit(
-    //     habit: Habit(
-    //   id: '1',
-    //   time: DateTime.now().subtract(const Duration(days: 1)),
-    //   title: 'Coding',
-    //   description: '6 lectures a day',
-    //   current: 4,
-    //   target: 6,
-    //   datasets: {DateTime(2024, 10, 2): (40 ~/ 6)},
-    //   streak: 0,
-    // ));
-
     return ValueListenableBuilder(
         valueListenable: base.dataStore.listenToHabit(),
         builder: (ctx, Box<Habit> box, Widget? child) {
@@ -57,13 +34,10 @@ class _HomeScreenState extends State<HomeScreen>
               title: const AppName(),
               actions: [
                 IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const NewHabit(habit: null);
-                        });
-                  },
+                  onPressed: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (_) => const HabitScreen(habit: null))),
                   tooltip: 'Add habit',
                   icon: const Icon(Icons.add),
                 )
@@ -97,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   showDialog(
                                       context: context,
                                       builder: (context) {
-                                        return const NewHabit(habit: null);
+                                        return const HabitScreen(habit: null);
                                       });
                                 },
                                 child: const Text('Get Started'))
@@ -117,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen>
                           }
                           habit.time = DateTime.now();
                           habit.current = 0;
+                          habit.isTodayTaskDone = false;
                           final percentForEachDay = <DateTime, int>{
                             DateTime(
                               DateTime.now().year,
@@ -175,10 +150,9 @@ class _HomeScreenState extends State<HomeScreen>
                                           setState(() {
                                             if (habits[index].current ==
                                                 habits[index].target) {
-                                              if (isTodayTaskDone) {
-                                                isTodayTaskDone = false;
-                                                habits[index].streak--;
-                                              }
+                                              habits[index].isTodayTaskDone =
+                                                  false;
+                                              habits[index].streak--;
                                               habits[index].current = 0;
                                               final percentForEachDay =
                                                   <DateTime, int>{
@@ -197,7 +171,8 @@ class _HomeScreenState extends State<HomeScreen>
                                               if (habits[index].current ==
                                                   habits[index].target) {
                                                 habits[index].streak++;
-                                                isTodayTaskDone = true;
+                                                habits[index].isTodayTaskDone =
+                                                    true;
                                               }
                                               final percentForEachDay =
                                                   <DateTime, int>{
@@ -260,21 +235,11 @@ class _HomeScreenState extends State<HomeScreen>
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     IconButton(
-                                        onPressed: () async {
-                                          await showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return NewHabit(
-                                                    habit: habits[index]);
-                                              });
-                                          if (isTodayTaskDone &&
-                                              habits[index].current !=
-                                                  habits[index].target) {
-                                            isTodayTaskDone = false;
-                                            habits[index].streak--;
-                                            habits[index].save();
-                                          }
-                                        },
+                                        onPressed: () => Navigator.push(
+                                            context,
+                                            CupertinoPageRoute(
+                                                builder: (_) => HabitScreen(
+                                                    habit: habits[index]))),
                                         tooltip: 'Edit',
                                         icon: const Icon(Icons.edit)),
                                     Container(
