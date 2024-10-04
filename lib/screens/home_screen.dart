@@ -67,13 +67,11 @@ class _HomeScreenState extends State<HomeScreen>
                                   foregroundColor:
                                       MaterialStatePropertyAll(Colors.white),
                                 ),
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return const HabitScreen(habit: null);
-                                      });
-                                },
+                                onPressed: () => Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (_) =>
+                                            const HabitScreen(habit: null))),
                                 child: const Text('Get Started'))
                           ],
                         ),
