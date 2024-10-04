@@ -25,6 +25,28 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final base = BaseWidget.of(context);
+    // base.dataStore.addHabit(
+    //     habit: Habit(
+    //   id: '0',
+    //   time: DateTime.now().subtract(const Duration(days: 1)),
+    //   title: 'GYM',
+    //   description: '2 times a day',
+    //   current: 2,
+    //   target: 2,
+    //   datasets: {DateTime(2024, 10, 2): 10},
+    //   streak: 1,
+    // ));
+    // base.dataStore.addHabit(
+    //     habit: Habit(
+    //   id: '1',
+    //   time: DateTime.now().subtract(const Duration(days: 1)),
+    //   title: 'Coding',
+    //   description: '6 lectures a day',
+    //   current: 4,
+    //   target: 6,
+    //   datasets: {DateTime(2024, 10, 2): (40 ~/ 6)},
+    //   streak: 0,
+    // ));
 
     return ValueListenableBuilder(
         valueListenable: base.dataStore.listenToHabit(),
@@ -90,9 +112,7 @@ class _HomeScreenState extends State<HomeScreen>
                       final isExpanded = _expandedIndex == index;
                       for (var habit in habits) {
                         if (habit.time.day != DateTime.now().day) {
-                          if (habit.current == habit.target) {
-                            habit.streak++;
-                          } else {
+                          if (habit.current != habit.target) {
                             habit.streak = 0;
                           }
                           habit.time = DateTime.now();
@@ -116,6 +136,8 @@ class _HomeScreenState extends State<HomeScreen>
                           child: Column(
                             children: [
                               ListTile(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
                                 onTap: () {
                                   setState(() {
                                     _expandedIndex = isExpanded
@@ -206,8 +228,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   showText: false,
                                   showColorTip: false,
                                   colorMode: ColorMode.color,
-                                  size: 12,
-                                  fontSize: 10,
+                                  size: 10,
+                                  fontSize: 0,
+                                  borderRadius: 3.5,
+                                  margin: const EdgeInsets.all(1),
                                   defaultColor: Colors.blueGrey.shade100,
                                   onClick: (value) {
                                     setState(() {
