@@ -123,24 +123,28 @@ class _HomeScreenState extends State<HomeScreen>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          habits[index].title,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        if (habits[index]
-                                            .description
-                                            .isNotEmpty)
-                                          Text(habits[index].description,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w500,
-                                              )),
-                                      ],
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            habits[index].title,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          if (habits[index]
+                                              .description
+                                              .isNotEmpty)
+                                            Text(habits[index].description,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                )),
+                                        ],
+                                      ),
                                     ),
                                     InkWell(
                                         borderRadius: BorderRadius.circular(30),
@@ -232,14 +236,6 @@ class _HomeScreenState extends State<HomeScreen>
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: [
-                                    IconButton(
-                                        onPressed: () => Navigator.push(
-                                            context,
-                                            CupertinoPageRoute(
-                                                builder: (_) => HabitScreen(
-                                                    habit: habits[index]))),
-                                        tooltip: 'Edit',
-                                        icon: const Icon(Icons.edit)),
                                     Container(
                                       decoration: BoxDecoration(
                                           borderRadius:
@@ -263,50 +259,66 @@ class _HomeScreenState extends State<HomeScreen>
                                         ],
                                       ),
                                     ),
-                                    IconButton(
-                                        onPressed: () => showDialog(
-                                              context: context,
-                                              builder: (ctx) => AlertDialog(
-                                                title:
-                                                    const Text('Are you sure?'),
-                                                content: const Text(
-                                                    'Do you want to delete this?'),
-                                                actions: <Widget>[
-                                                  Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceAround,
-                                                      children: [
-                                                        TextButton(
-                                                            child: const Text(
-                                                                'Yes'),
-                                                            onPressed: () {
-                                                              base.dataStore
-                                                                  .deleteHabit(
-                                                                      habit: habits[
-                                                                          index]);
-                                                              Navigator.of(ctx)
-                                                                  .pop();
-                                                              Dialogs.showSnackBar(
-                                                                  context,
-                                                                  'Habit deleted successfully!');
-                                                            }),
-                                                        TextButton(
-                                                            child: const Text(
-                                                                'No'),
-                                                            onPressed: () {
-                                                              Navigator.of(ctx)
-                                                                  .pop();
-                                                            }),
-                                                      ])
-                                                ],
-                                              ),
-                                            ),
-                                        tooltip: 'Delete',
-                                        icon: Icon(Icons.delete,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .error)),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: () => Navigator.push(
+                                                context,
+                                                CupertinoPageRoute(
+                                                    builder: (_) => HabitScreen(
+                                                        habit: habits[index]))),
+                                            tooltip: 'Edit',
+                                            icon: const Icon(
+                                                CupertinoIcons.pencil_outline)),
+                                        IconButton(
+                                            onPressed: () => showDialog(
+                                                  context: context,
+                                                  builder: (ctx) => AlertDialog(
+                                                    title: const Text(
+                                                        'Are you sure?'),
+                                                    content: const Text(
+                                                        'Do you want to delete this?'),
+                                                    actions: <Widget>[
+                                                      Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                        'Yes'),
+                                                                onPressed: () {
+                                                                  base.dataStore
+                                                                      .deleteHabit(
+                                                                          habit:
+                                                                              habits[index]);
+                                                                  Navigator.of(
+                                                                          ctx)
+                                                                      .pop();
+                                                                  Dialogs.showSnackBar(
+                                                                      context,
+                                                                      'Habit deleted successfully!');
+                                                                }),
+                                                            TextButton(
+                                                                child:
+                                                                    const Text(
+                                                                        'No'),
+                                                                onPressed: () {
+                                                                  Navigator.of(
+                                                                          ctx)
+                                                                      .pop();
+                                                                }),
+                                                          ])
+                                                    ],
+                                                  ),
+                                                ),
+                                            tooltip: 'Delete',
+                                            icon: const Icon(
+                                                CupertinoIcons.delete_solid,
+                                                color: Colors.red)),
+                                      ],
+                                    ),
                                   ],
                                 )
                             ],

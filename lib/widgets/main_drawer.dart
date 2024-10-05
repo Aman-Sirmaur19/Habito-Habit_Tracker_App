@@ -78,8 +78,14 @@ class MainDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          Divider(),
                           Text(
-                            '\u2022 Click on the card for more settings.',
+                            '\n\u2022 Click on the "circular counter widget" to edit current count of your habit.\n',
+                            style: TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '\u2022 Click on the habit card for more settings.',
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.bold),
                           ),
