@@ -44,7 +44,7 @@ class _HabitScreenState extends State<HabitScreen> {
   // Main function for creating habit
   dynamic _createOrUpdateHabit() {
     if (_titleController.text.trim().isEmpty) {
-      Dialogs.showErrorSnackBar(context, 'Enter Habit name');
+      Dialogs.showErrorSnackBar(context, 'Enter your plan');
     } else if (_descriptionController.text.trim().isEmpty) {
       Dialogs.showErrorSnackBar(context, 'Enter description');
     } else if (_target == 0) {
