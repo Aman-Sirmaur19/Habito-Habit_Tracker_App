@@ -56,8 +56,11 @@ class _HabitScreenState extends State<HabitScreen> {
           widget.habit?.description = _descriptionController.text.trim();
           if (widget.habit?.target != _target) {
             widget.habit?.target = _target;
-            if (widget.habit!.current > _target) {
+            if (widget.habit!.current >= _target) {
               widget.habit?.current = _target;
+              if (!widget.habit!.isTodayTaskDone) {
+                widget.habit?.streak++;
+              }
               widget.habit?.isTodayTaskDone = true;
             } else {
               if (widget.habit!.isTodayTaskDone) {
@@ -167,10 +170,9 @@ class _HabitScreenState extends State<HabitScreen> {
                         Navigator.of(context).pop();
                       },
                       style: const ButtonStyle(
-                          backgroundColor:
-                          MaterialStatePropertyAll(Colors.red),
+                          backgroundColor: MaterialStatePropertyAll(Colors.red),
                           foregroundColor:
-                          MaterialStatePropertyAll(Colors.white)),
+                              MaterialStatePropertyAll(Colors.white)),
                       icon: const Icon(Icons.close_rounded),
                       label: const Text('Cancel')),
                   ElevatedButton.icon(
