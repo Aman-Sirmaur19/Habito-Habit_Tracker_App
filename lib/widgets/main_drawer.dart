@@ -53,7 +53,7 @@ class MainDrawer extends StatelessWidget {
                 const Text(
                   'Hey Buddy!',
                   style: TextStyle(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 25,
                     color: Color.fromARGB(255, 95, 48, 237),
                   ),

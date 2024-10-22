@@ -13,7 +13,7 @@ class AppName extends StatelessWidget {
               color: Colors.blue,
               letterSpacing: 1,
               fontSize: 25,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             )),
         const SizedBox(width: 2),
         Image.asset('assets/images/pie-chart.png', width: 20),

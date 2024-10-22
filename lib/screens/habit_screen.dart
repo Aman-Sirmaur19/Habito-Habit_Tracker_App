@@ -210,7 +210,7 @@ class _HabitScreenState extends State<HabitScreen> {
             padding: EdgeInsets.only(left: 10),
             child: Row(
               children: [
-                Icon(CupertinoIcons.flag_fill, color: Colors.grey),
+                Icon(Icons.adjust, color: Colors.grey),
                 SizedBox(width: 12),
                 Text('Target',
                     style: TextStyle(

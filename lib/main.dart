@@ -55,6 +55,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'HabitO',
       theme: ThemeData(
+        fontFamily: 'Fredoka',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         iconButtonTheme: IconButtonThemeData(
             style: ButtonStyle(
