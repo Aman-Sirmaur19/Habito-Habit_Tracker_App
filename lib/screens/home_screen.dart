@@ -90,13 +90,45 @@ class _HomeScreenState extends State<HomeScreen>
               title: const AppName(),
               actions: [
                 IconButton(
+                  onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                            title: Text(
+                              'NOTE',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Divider(),
+                                Text(
+                                  '\n\u2022 Click on the "circular counter widget" to edit current count of your habit.\n',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  '\u2022 Click on the habit card for more settings.',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          )),
+                  icon: const Icon(CupertinoIcons.info),
+                ),
+                IconButton(
                   onPressed: () => Navigator.push(
                       context,
                       CupertinoPageRoute(
                           builder: (_) => const HabitScreen(habit: null))),
                   tooltip: 'Add habit',
                   icon: const Icon(Icons.add),
-                )
+                ),
               ],
             ),
             bottomNavigationBar: isBannerLoaded

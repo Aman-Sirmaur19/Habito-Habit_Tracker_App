@@ -63,37 +63,6 @@ class MainDrawer extends StatelessWidget {
           ),
           SizedBox(height: mq.height * .03),
           buildListTile(
-            'Info',
-            CupertinoIcons.info,
-            () => showDialog(
-                context: context,
-                builder: (context) => const AlertDialog(
-                      title: Text(
-                        'NOTE',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      content: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Divider(),
-                          Text(
-                            '\n\u2022 Click on the "circular counter widget" to edit current count of your habit.\n',
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '\u2022 Click on the habit card for more settings.',
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    )),
-          ),
-          buildListTile(
             'More Apps!',
             CupertinoIcons.app_badge,
             () async {
