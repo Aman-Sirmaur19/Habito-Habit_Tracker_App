@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../main.dart';
 import '../models/habit.dart';
@@ -18,6 +19,8 @@ class HabitScreen extends StatefulWidget {
 }
 
 class _HabitScreenState extends State<HabitScreen> {
+  late BannerAd bannerAd;
+  bool isBannerLoaded = false;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   int _target = 0;
@@ -25,11 +28,33 @@ class _HabitScreenState extends State<HabitScreen> {
   @override
   void initState() {
     super.initState();
+    initializeBannerAd();
     if (widget.habit != null) {
       _titleController.text = widget.habit!.title;
       _descriptionController.text = widget.habit!.description;
       _target = widget.habit!.target;
     }
+  }
+
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/8152722767',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
   }
 
   // if habit already exist return true, else false
@@ -122,6 +147,9 @@ class _HabitScreenState extends State<HabitScreen> {
           ),
           title: const AppName(),
         ),
+        bottomNavigationBar: isBannerLoaded
+            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+            : const SizedBox(),
         body: Padding(
           padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: ListView(

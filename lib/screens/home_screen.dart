@@ -1,14 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:in_app_update/in_app_update.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 import '../main.dart';
 import '../models/habit.dart';
-import '../widgets/app_name.dart';
-import '../widgets/circle_segment_widget.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/app_name.dart';
 import '../widgets/main_drawer.dart';
+import '../widgets/circle_segment_widget.dart';
 import 'habit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +24,59 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+  late BannerAd bannerAd;
+  bool isBannerLoaded = false;
   int _expandedIndex = -1;
+
+  Future<void> checkForUpdate() async {
+    log('Checking for Update!');
+    await InAppUpdate.checkForUpdate().then((info) {
+      setState(() {
+        if (info.updateAvailability == UpdateAvailability.updateAvailable) {
+          log('Update available!');
+          update();
+        }
+      });
+    }).catchError((error) {
+      log(error.toString());
+    });
+  }
+
+  void update() async {
+    log('Updating');
+    await InAppUpdate.startFlexibleUpdate();
+    InAppUpdate.completeFlexibleUpdate().then((_) {}).catchError((error) {
+      log(error.toString());
+    });
+  }
+
+  initializeBannerAd() async {
+    bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: 'ca-app-pub-9389901804535827/8152722767',
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            isBannerLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          isBannerLoaded = false;
+          log(error.message);
+        },
+      ),
+      request: const AdRequest(),
+    );
+    bannerAd.load();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkForUpdate();
+    initializeBannerAd();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +99,9 @@ class _HomeScreenState extends State<HomeScreen>
                 )
               ],
             ),
+            bottomNavigationBar: isBannerLoaded
+                ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
+                : const SizedBox(),
             drawer: const MainDrawer(),
             body: habits.isEmpty
                 ? Center(

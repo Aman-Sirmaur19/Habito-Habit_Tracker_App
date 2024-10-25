@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'data/hive_data_store.dart';
 import 'models/habit.dart';
@@ -21,7 +22,7 @@ Future<void> main() async {
 
   // Open all the boxes
   await Hive.openBox<Habit>(HiveDataStore.habitBoxName);
-
+  await MobileAds.instance.initialize();
   runApp(BaseWidget(child: const MyApp()));
 }
 
