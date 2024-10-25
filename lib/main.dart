@@ -9,6 +9,10 @@ import 'screens/home_screen.dart';
 
 late Size mq;
 
+_initializeMobileAds() async {
+  await MobileAds.instance.initialize();
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(
@@ -22,7 +26,7 @@ Future<void> main() async {
 
   // Open all the boxes
   await Hive.openBox<Habit>(HiveDataStore.habitBoxName);
-  await MobileAds.instance.initialize();
+  _initializeMobileAds();
   runApp(BaseWidget(child: const MyApp()));
 }
 
