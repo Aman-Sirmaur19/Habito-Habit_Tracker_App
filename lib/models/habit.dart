@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -5,29 +6,67 @@ part 'habit.g.dart';
 
 @HiveType(typeId: 0)
 class Habit extends HiveObject {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   DateTime time;
+
+  @HiveField(2)
   String title;
+
+  @HiveField(3)
   String description;
+
+  @HiveField(4)
   int current;
+
+  @HiveField(5)
   int target;
+
+  @HiveField(6)
   Map<DateTime, int> datasets;
+
+  @HiveField(7)
   int streak;
+
+  @HiveField(8)
   bool isTodayTaskDone;
 
-  Habit({
-    @HiveField(0) required this.id,
-    @HiveField(1) required this.time,
-    @HiveField(2) required this.title,
-    @HiveField(3) required this.description,
-    @HiveField(4) required this.current,
-    @HiveField(5) required this.target,
-    @HiveField(6) required this.datasets,
-    @HiveField(7) required this.streak,
-    @HiveField(8) required this.isTodayTaskDone,
-  });
+  @HiveField(9)
+  int colorValue; // Store Color as int
 
-  // create new habit
+  @HiveField(10)
+  int iconCodePoint; // Store IconData's codePoint as int
+
+  @HiveField(11)
+  String? iconFontFamily; // Optional fontFamily for IconData
+
+  Habit({
+    required this.id,
+    required this.time,
+    required this.title,
+    required this.description,
+    required this.current,
+    required this.target,
+    required this.datasets,
+    required this.streak,
+    required this.isTodayTaskDone,
+    required Color color,
+    required IconData iconData,
+  })  : colorValue = color.value,
+        // Save color as int
+        iconCodePoint = iconData.codePoint,
+        // Save IconData's codePoint
+        iconFontFamily = iconData.fontFamily; // Save IconData's fontFamily
+
+  // Accessor for `Color`
+  Color get color => Color(colorValue);
+
+  // Accessor for `IconData`
+  IconData get iconData => IconData(iconCodePoint, fontFamily: iconFontFamily);
+
+  // Factory for creating a new habit
   factory Habit.create({
     required DateTime time,
     required String title,
@@ -37,6 +76,8 @@ class Habit extends HiveObject {
     Map<DateTime, int>? datasets,
     int? streak,
     required bool isTodayTaskDone,
+    required Color color,
+    required IconData iconData,
   }) =>
       Habit(
         id: const Uuid().v1(),
@@ -48,5 +89,7 @@ class Habit extends HiveObject {
         datasets: datasets ?? {},
         streak: streak ?? 0,
         isTodayTaskDone: isTodayTaskDone,
+        color: color,
+        iconData: iconData,
       );
 }

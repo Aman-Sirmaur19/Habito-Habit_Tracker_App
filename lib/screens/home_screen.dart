@@ -9,6 +9,7 @@ import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 import '../main.dart';
 import '../models/habit.dart';
+import '../secrets.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/app_name.dart';
 import '../widgets/main_drawer.dart';
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen>
   initializeBannerAd() async {
     bannerAd = BannerAd(
       size: AdSize.banner,
-      adUnitId: 'ca-app-pub-9389901804535827/8152722767',
+      adUnitId: Secrets.bannerAdId,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     checkForUpdate();
-    initializeBannerAd();
+    // initializeBannerAd();
   }
 
   @override
@@ -119,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen>
                               ],
                             ),
                           )),
+                  tooltip: 'Info',
                   icon: const Icon(CupertinoIcons.info),
                 ),
                 IconButton(
@@ -200,6 +202,8 @@ class _HomeScreenState extends State<HomeScreen>
                           child: Column(
                             children: [
                               ListTile(
+                                contentPadding:
+                                    const EdgeInsets.only(left: 5, right: 5),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
                                 onTap: () {
@@ -209,85 +213,95 @@ class _HomeScreenState extends State<HomeScreen>
                                         : index; // Toggle expanded state
                                   });
                                 },
-                                title: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            habits[index].title,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          if (habits[index]
-                                              .description
-                                              .isNotEmpty)
-                                            Text(habits[index].description,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w500,
-                                                )),
-                                        ],
+                                title: ListTile(
+                                  // tileColor: Colors.blue.shade300,
+                                  contentPadding: const EdgeInsets.all(0),
+                                  leading: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                        color:
+                                            habits[index].color.withOpacity(.2),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Icon(
+                                      IconData(
+                                        habits[index].iconCodePoint,
+                                        fontFamily:
+                                            habits[index].iconFontFamily,
+                                        fontPackage: 'font_awesome_flutter',
                                       ),
+                                      size: 20, // Adjust size if needed
+                                      color: habits[index]
+                                          .color, // Optional: set icon color
                                     ),
-                                    InkWell(
-                                        borderRadius: BorderRadius.circular(30),
-                                        onTap: () {
-                                          setState(() {
+                                  ),
+                                  title: Text(
+                                    habits[index].title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: habits[index].description.isNotEmpty
+                                      ? Text(habits[index].description,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ))
+                                      : null,
+                                  trailing: InkWell(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(20)),
+                                      onTap: () {
+                                        setState(() {
+                                          if (habits[index].current ==
+                                              habits[index].target) {
+                                            habits[index].isTodayTaskDone =
+                                                false;
+                                            habits[index].streak--;
+                                            habits[index].current = 0;
+                                            final percentForEachDay =
+                                                <DateTime, int>{
+                                              DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                              ): 10 *
+                                                  habits[index].current ~/
+                                                  habits[index].target,
+                                            };
+                                            habits[index].datasets.addEntries(
+                                                percentForEachDay.entries);
+                                          } else {
+                                            habits[index].current++;
                                             if (habits[index].current ==
                                                 habits[index].target) {
+                                              habits[index].streak++;
                                               habits[index].isTodayTaskDone =
-                                                  false;
-                                              habits[index].streak--;
-                                              habits[index].current = 0;
-                                              final percentForEachDay =
-                                                  <DateTime, int>{
-                                                DateTime(
-                                                  DateTime.now().year,
-                                                  DateTime.now().month,
-                                                  DateTime.now().day,
-                                                ): 10 *
-                                                    habits[index].current ~/
-                                                    habits[index].target,
-                                              };
-                                              habits[index].datasets.addEntries(
-                                                  percentForEachDay.entries);
-                                            } else {
-                                              habits[index].current++;
-                                              if (habits[index].current ==
-                                                  habits[index].target) {
-                                                habits[index].streak++;
-                                                habits[index].isTodayTaskDone =
-                                                    true;
-                                              }
-                                              final percentForEachDay =
-                                                  <DateTime, int>{
-                                                DateTime(
-                                                  DateTime.now().year,
-                                                  DateTime.now().month,
-                                                  DateTime.now().day,
-                                                ): 10 *
-                                                    habits[index].current ~/
-                                                    habits[index].target,
-                                              };
-                                              habits[index].datasets.addEntries(
-                                                  percentForEachDay.entries);
+                                                  true;
                                             }
-                                            habits[index].save();
-                                          });
-                                        },
-                                        child: CircleSegmentWidget(
-                                          current: habits[index].current,
-                                          target: habits[index].target,
-                                        )),
-                                  ],
+                                            final percentForEachDay =
+                                                <DateTime, int>{
+                                              DateTime(
+                                                DateTime.now().year,
+                                                DateTime.now().month,
+                                                DateTime.now().day,
+                                              ): 10 *
+                                                  habits[index].current ~/
+                                                  habits[index].target,
+                                            };
+                                            habits[index].datasets.addEntries(
+                                                percentForEachDay.entries);
+                                          }
+                                          habits[index].save();
+                                        });
+                                      },
+                                      child: CircleSegmentWidget(
+                                        current: habits[index].current,
+                                        target: habits[index].target,
+                                        color: habits[index].color,
+                                      )),
                                 ),
                                 subtitle: HeatMap(
                                   datasets: habits[index].datasets,
@@ -308,17 +322,17 @@ class _HomeScreenState extends State<HomeScreen>
                                           : index; // Toggle expanded state
                                     });
                                   },
-                                  colorsets: const {
-                                    1: Color.fromARGB(40, 33, 150, 243),
-                                    2: Color.fromARGB(60, 33, 150, 243),
-                                    3: Color.fromARGB(80, 33, 150, 243),
-                                    4: Color.fromARGB(100, 33, 150, 243),
-                                    5: Color.fromARGB(125, 33, 150, 243),
-                                    6: Color.fromARGB(150, 33, 150, 243),
-                                    7: Color.fromARGB(180, 33, 150, 243),
-                                    8: Color.fromARGB(210, 33, 150, 243),
-                                    9: Color.fromARGB(230, 33, 150, 243),
-                                    10: Color.fromARGB(255, 2, 179, 8),
+                                  colorsets: {
+                                    1: habits[index].color.withOpacity(0.1),
+                                    2: habits[index].color.withOpacity(0.2),
+                                    3: habits[index].color.withOpacity(0.3),
+                                    4: habits[index].color.withOpacity(0.4),
+                                    5: habits[index].color.withOpacity(0.5),
+                                    6: habits[index].color.withOpacity(0.6),
+                                    7: habits[index].color.withOpacity(0.7),
+                                    8: habits[index].color.withOpacity(0.8),
+                                    9: habits[index].color.withOpacity(0.9),
+                                    10: habits[index].color,
                                   },
                                 ),
                               ),
@@ -328,6 +342,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 2),
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5),

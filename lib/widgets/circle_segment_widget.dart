@@ -1,15 +1,18 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CircleSegmentWidget extends StatefulWidget {
   final int current;
   final int target;
+  final Color color;
 
   const CircleSegmentWidget({
     super.key,
     required this.current,
     required this.target,
+    required this.color,
   });
 
   @override
@@ -22,11 +25,21 @@ class _CircleSegmentWidgetState extends State<CircleSegmentWidget> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        if (widget.current < widget.target) Text(widget.current.toString()),
-        if (widget.current == widget.target) const Icon(Icons.check_rounded),
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+              color: widget.color.withOpacity(.2),
+              borderRadius: BorderRadius.circular(10)),
+        ),
+        if (widget.current < widget.target)
+          const Icon(FontAwesomeIcons.plus, size: 17),
+        if (widget.current == widget.target)
+          const Icon(FontAwesomeIcons.check, size: 17),
         CustomPaint(
-          size: const Size(60, 60), // Size of the canvas
-          painter: CircleArcPainter(widget.current, widget.target),
+          size: const Size(55, 55), // Size of the canvas
+          painter:
+              CircleArcPainter(widget.current, widget.target, widget.color),
         ),
       ],
     );
@@ -36,22 +49,21 @@ class _CircleSegmentWidgetState extends State<CircleSegmentWidget> {
 class CircleArcPainter extends CustomPainter {
   final int coloredSegments;
   final int totalSegments;
+  final Color color;
 
-  CircleArcPainter(this.coloredSegments, this.totalSegments);
+  CircleArcPainter(this.coloredSegments, this.totalSegments, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5.0 // Increase stroke width for the arcs
-      ..color = Colors.grey; // Change the uncolored arcs to grey
+      ..color = color.withOpacity(.5); // Change the uncolored arcs to grey
 
     final Paint coloredPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5.0 // Increase stroke width for the colored arcs
-      ..color = coloredSegments == totalSegments
-          ? const Color.fromARGB(255, 2, 179, 8)
-          : const Color.fromARGB(255, 33, 150, 243);
+      ..color = color;
 
     final center = Offset(size.width / 2, size.height / 2);
     final radius =
