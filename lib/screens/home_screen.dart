@@ -8,8 +8,8 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 
 import '../main.dart';
-import '../models/habit.dart';
 import '../secrets.dart';
+import '../models/habit.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/app_name.dart';
 import '../widgets/main_drawer.dart';
@@ -29,13 +29,13 @@ class _HomeScreenState extends State<HomeScreen>
   bool isBannerLoaded = false;
   int _expandedIndex = -1;
 
-  Future<void> checkForUpdate() async {
+  Future<void> _checkForUpdate() async {
     log('Checking for Update!');
     await InAppUpdate.checkForUpdate().then((info) {
       setState(() {
         if (info.updateAvailability == UpdateAvailability.updateAvailable) {
           log('Update available!');
-          update();
+          _update();
         }
       });
     }).catchError((error) {
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  void update() async {
+  void _update() async {
     log('Updating');
     await InAppUpdate.startFlexibleUpdate();
     InAppUpdate.completeFlexibleUpdate().then((_) {}).catchError((error) {
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  initializeBannerAd() async {
+  _initializeBannerAd() async {
     bannerAd = BannerAd(
       size: AdSize.banner,
       adUnitId: Secrets.bannerAdId,
@@ -75,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    checkForUpdate();
-    // initializeBannerAd();
+    _checkForUpdate();
+    _initializeBannerAd();
   }
 
   @override

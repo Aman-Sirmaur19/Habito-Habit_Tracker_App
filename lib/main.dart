@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'data/hive_data_store.dart';
 import 'models/habit.dart';
 import 'screens/home_screen.dart';
+import 'data/hive_data_store.dart';
 
 late Size mq;
 

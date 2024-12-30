@@ -75,7 +75,7 @@ class _HabitScreenState extends State<HabitScreen> {
   @override
   void initState() {
     super.initState();
-    // initializeBannerAd();
+    _initializeBannerAd();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _selectedColor = Colors.blue;
@@ -105,7 +105,7 @@ class _HabitScreenState extends State<HabitScreen> {
     super.dispose();
   }
 
-  initializeBannerAd() async {
+  _initializeBannerAd() async {
     bannerAd = BannerAd(
       size: AdSize.banner,
       adUnitId: Secrets.bannerAdId,
@@ -127,7 +127,7 @@ class _HabitScreenState extends State<HabitScreen> {
   }
 
   // if habit already exist return true, else false
-  bool isHabitAlreadyExist() {
+  bool _isHabitAlreadyExist() {
     if (widget.habit != null) {
       return true;
     } else {
@@ -280,7 +280,7 @@ class _HabitScreenState extends State<HabitScreen> {
                 style: TextStyle(fontSize: 15, color: Colors.grey),
               ),
               const SizedBox(height: 10),
-              customTargetContainer(),
+              _customTargetContainer(),
               const SizedBox(height: 20),
               const Text(
                 'Select color',
@@ -371,10 +371,10 @@ class _HabitScreenState extends State<HabitScreen> {
                       style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.blue),
-                      icon: Icon(isHabitAlreadyExist()
+                      icon: Icon(_isHabitAlreadyExist()
                           ? CupertinoIcons.refresh_thick
                           : CupertinoIcons.list_bullet_indent),
-                      label: Text(isHabitAlreadyExist() ? 'Update' : 'Add')),
+                      label: Text(_isHabitAlreadyExist() ? 'Update' : 'Add')),
                 ],
               )
             ],
@@ -384,7 +384,7 @@ class _HabitScreenState extends State<HabitScreen> {
     );
   }
 
-  Widget customTargetContainer() {
+  Widget _customTargetContainer() {
     return Container(
       // width: double.infinity,
       height: 60,
