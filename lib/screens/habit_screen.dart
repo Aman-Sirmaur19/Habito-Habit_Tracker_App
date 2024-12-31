@@ -2,29 +2,30 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../main.dart';
-import '../secrets.dart';
 import '../models/habit.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/app_name.dart';
+import '../widgets/custom_heat_map.dart';
+import '../widgets/custom_banner_ad.dart';
 import '../widgets/custom_text_form_field.dart';
 
 class HabitScreen extends StatefulWidget {
-  const HabitScreen({super.key, required this.habit});
+  const HabitScreen({super.key, required this.habit, this.isCalender = false});
 
   final Habit? habit;
+  final bool isCalender;
 
   @override
   State<HabitScreen> createState() => _HabitScreenState();
 }
 
 class _HabitScreenState extends State<HabitScreen> {
-  late BannerAd bannerAd;
-  bool isBannerLoaded = false;
+  final _today =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   Color _selectedColor = Colors.blue;
@@ -32,18 +33,24 @@ class _HabitScreenState extends State<HabitScreen> {
   int _target = 0;
   final List<IconData> _icons = [
     FontAwesomeIcons.code,
+    FontAwesomeIcons.flutter,
+    FontAwesomeIcons.android,
+    FontAwesomeIcons.penToSquare,
     FontAwesomeIcons.book,
+    FontAwesomeIcons.noteSticky,
     FontAwesomeIcons.school,
+    FontAwesomeIcons.check,
+    FontAwesomeIcons.fire,
     FontAwesomeIcons.personWalking,
     FontAwesomeIcons.dumbbell,
     FontAwesomeIcons.personRunning,
     FontAwesomeIcons.chess,
     FontAwesomeIcons.personBiking,
     FontAwesomeIcons.football,
-    FontAwesomeIcons.fire,
+    FontAwesomeIcons.computer,
     FontAwesomeIcons.apple,
     FontAwesomeIcons.mobile,
-    FontAwesomeIcons.shower,
+    FontAwesomeIcons.pills,
     FontAwesomeIcons.heartPulse,
     FontAwesomeIcons.bed,
     FontAwesomeIcons.music,
@@ -55,27 +62,32 @@ class _HabitScreenState extends State<HabitScreen> {
     FontAwesomeIcons.facebook,
     FontAwesomeIcons.facebookMessenger,
     FontAwesomeIcons.whatsapp,
+    FontAwesomeIcons.quora,
+    FontAwesomeIcons.tiktok,
+    FontAwesomeIcons.guitar,
+    FontAwesomeIcons.om,
+    FontAwesomeIcons.shower,
+    FontAwesomeIcons.glassWaterDroplet,
     FontAwesomeIcons.dollarSign,
     FontAwesomeIcons.indianRupeeSign,
     FontAwesomeIcons.chartLine,
     FontAwesomeIcons.mugSaucer,
     FontAwesomeIcons.pizzaSlice,
     FontAwesomeIcons.iceCream,
+    FontAwesomeIcons.banSmoking,
+    FontAwesomeIcons.beerMugEmpty,
+    FontAwesomeIcons.champagneGlasses,
     FontAwesomeIcons.faceSmile,
     FontAwesomeIcons.faceSadTear,
-    FontAwesomeIcons.smoking,
+    FontAwesomeIcons.palette,
     FontAwesomeIcons.clock,
     FontAwesomeIcons.star,
     FontAwesomeIcons.heart,
-    FontAwesomeIcons.check,
-    FontAwesomeIcons.computer,
-    FontAwesomeIcons.flutter,
   ];
 
   @override
   void initState() {
     super.initState();
-    _initializeBannerAd();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _selectedColor = Colors.blue;
@@ -84,7 +96,7 @@ class _HabitScreenState extends State<HabitScreen> {
     if (widget.habit != null) {
       _titleController.text = widget.habit!.title;
       _descriptionController.text = widget.habit!.description;
-      _target = widget.habit!.target;
+      _target = widget.habit?.dataOfDay[_today]?['target'] ?? 0;
       _selectedIcon = IconData(
         widget.habit!.iconCodePoint,
         fontFamily: widget.habit!.iconFontFamily,
@@ -103,27 +115,6 @@ class _HabitScreenState extends State<HabitScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  _initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: Secrets.bannerAdId,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
   }
 
   // if habit already exist return true, else false
@@ -155,30 +146,25 @@ class _HabitScreenState extends State<HabitScreen> {
     try {
       final title = _titleController.text.trim();
       final description = _descriptionController.text.trim();
-      final today = DateTime(
-          DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
       if (widget.habit != null) {
         // Update existing habit
         final oldHabit = widget.habit!;
         final updatedDatasets = Map<DateTime, int>.from(oldHabit.datasets);
+        int oldCurrent = oldHabit.dataOfDay[_today]!['current']!;
+        int oldTarget = oldHabit.dataOfDay[_today]!['target']!;
+        if (oldTarget != _target) {
+          final updatedDataOfDay =
+              Map<DateTime, Map<String, int>>.from(widget.habit!.dataOfDay);
 
-        if (oldHabit.target != _target) {
-          if (oldHabit.current >= _target) {
-            oldHabit.current = _target;
-            if (!oldHabit.isTodayTaskDone) {
-              oldHabit.streak++;
-            }
-            oldHabit.isTodayTaskDone = true;
-          } else {
-            if (oldHabit.isTodayTaskDone) {
-              oldHabit.streak--;
-            }
-            oldHabit.isTodayTaskDone = false;
-          }
-
-          final percentForToday = (10 * oldHabit.current ~/ _target);
-          updatedDatasets[today] = percentForToday;
+          // Update only the current day's data
+          updatedDataOfDay[_today] = {
+            'current': oldCurrent >= _target ? _target : oldCurrent,
+            'target': _target,
+          };
+          widget.habit!.dataOfDay = updatedDataOfDay;
+          final percentForToday = (10 * oldCurrent ~/ _target);
+          updatedDatasets[_today] = percentForToday;
         }
 
         // Replace the old habit with updated values
@@ -186,11 +172,8 @@ class _HabitScreenState extends State<HabitScreen> {
           time: oldHabit.time,
           title: title,
           description: description,
-          current: oldHabit.current,
-          target: _target,
+          dataOfDay: oldHabit.dataOfDay,
           datasets: updatedDatasets,
-          streak: oldHabit.streak,
-          isTodayTaskDone: oldHabit.isTodayTaskDone,
           color: _selectedColor,
           iconData: _selectedIcon,
         );
@@ -206,10 +189,10 @@ class _HabitScreenState extends State<HabitScreen> {
           time: DateTime.now(),
           title: title,
           description: description,
-          current: 0,
-          target: _target,
-          datasets: {today: 0},
-          isTodayTaskDone: false,
+          dataOfDay: {
+            _today: {'current': 0, 'target': _target}
+          },
+          datasets: {_today: 0},
           color: _selectedColor,
           iconData: _selectedIcon,
         );
@@ -241,144 +224,217 @@ class _HabitScreenState extends State<HabitScreen> {
           ),
           title: const AppName(),
         ),
-        bottomNavigationBar: isBannerLoaded
-            ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-            : const SizedBox(),
+        bottomNavigationBar: const CustomBannerAd(),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: ListView(
-            children: [
-              const Text(
-                'What\'s your plan?',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: _titleController,
-                hintText: 'Plan',
-                onFieldSubmitted: (value) {
-                  _titleController.text = value;
-                },
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Provide a brief description',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              CustomTextFormField(
-                controller: _descriptionController,
-                hintText: 'Add note',
-                isForDescription: true,
-                onFieldSubmitted: (value) {
-                  _descriptionController.text = value;
-                },
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Set target for each day',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              _customTargetContainer(),
-              const SizedBox(height: 20),
-              const Text(
-                'Select color',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(.4)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: ColorPicker(
-                  onColorChanged: (Color color) =>
-                      setState(() => _selectedColor = color),
-                  width: 30,
-                  height: 30,
-                  color: _selectedColor,
-                  padding: const EdgeInsets.all(0),
-                  enableShadesSelection: false,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Select icon',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: 120,
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(.4)),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: GridView.builder(
-                  scrollDirection: Axis.horizontal,
-                  // physics: const BouncingScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 3 rows
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                  ),
-                  itemCount: _icons.length,
-                  itemBuilder: (context, index) {
-                    final icon = _icons[index];
-                    final bool isSelected =
-                        _selectedIcon.toString() == icon.toString();
-
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedIcon = icon),
-                      child: Icon(
-                        icon,
-                        size: isSelected ? 23 : 20, // Increase size if selected
-                        color: isSelected ? _selectedColor : Colors.black87,
+          child: widget.isCalender
+              ? Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Tap on dates to add / remove completions',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          width: 0.75,
+                          color: widget.habit!.color,
+                        ),
+                        color: widget.habit!.color.withOpacity(.03),
                       ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton.icon(
-                      onPressed: () {
-                        _titleController.clear();
-                        _descriptionController.clear();
-                        Navigator.of(context).pop();
+                      child: CustomHeatMap(
+                        habit: widget.habit!,
+                        onClick: (date) {
+                          setState(() {
+                            int current =
+                                widget.habit!.dataOfDay[date]?['current'] ?? 0;
+                            int target = widget.habit!.dataOfDay[date]
+                                    ?['target'] ??
+                                widget.habit!.dataOfDay[_today]!['target']!;
+                            if (current >= target) {
+                              current = 0;
+                              final percentForEachDay = <DateTime, int>{
+                                date: 10 * current ~/ target,
+                              };
+                              widget.habit?.datasets
+                                  .addEntries(percentForEachDay.entries);
+                            } else {
+                              current++;
+                              final percentForEachDay = <DateTime, int>{
+                                date: 10 * current ~/ target,
+                              };
+                              widget.habit?.datasets
+                                  .addEntries(percentForEachDay.entries);
+                            }
+                            final updatedDataOfDay =
+                                Map<DateTime, Map<String, int>>.from(
+                                    widget.habit!.dataOfDay);
+                            updatedDataOfDay[date] = {
+                              'current': current,
+                              'target': target,
+                            };
+                            widget.habit!.dataOfDay = updatedDataOfDay;
+                            widget.habit?.save();
+                          });
+                        },
+                        showText: true,
+                        size: 25,
+                        fontSize: 15,
+                        borderRadius: 5,
+                        margin: 5,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Text(
+                      'More features coming soon',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                )
+              : ListView(
+                  children: [
+                    const Text(
+                      'What\'s your plan?',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: _titleController,
+                      hintText: 'Plan',
+                      onFieldSubmitted: (value) {
+                        _titleController.text = value;
                       },
-                      style: const ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(Colors.red),
-                          foregroundColor:
-                              MaterialStatePropertyAll(Colors.white)),
-                      icon: const Icon(Icons.close_rounded),
-                      label: const Text('Cancel')),
-                  ElevatedButton.icon(
-                      onPressed: () => _createOrUpdateHabit(),
-                      style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue),
-                      icon: Icon(_isHabitAlreadyExist()
-                          ? CupertinoIcons.refresh_thick
-                          : CupertinoIcons.list_bullet_indent),
-                      label: Text(_isHabitAlreadyExist() ? 'Update' : 'Add')),
-                ],
-              )
-            ],
-          ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Provide a brief description',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: _descriptionController,
+                      hintText: 'Add note',
+                      isForDescription: true,
+                      onFieldSubmitted: (value) {
+                        _descriptionController.text = value;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Set target for each day',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    _customTargetContainer(),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Select color',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(.4)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ColorPicker(
+                        onColorChanged: (Color color) =>
+                            setState(() => _selectedColor = color),
+                        width: 30,
+                        height: 30,
+                        color: _selectedColor,
+                        padding: const EdgeInsets.all(0),
+                        enableShadesSelection: false,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Select icon',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      height: 120,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .secondary
+                                .withOpacity(.4)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: GridView.builder(
+                        scrollDirection: Axis.horizontal,
+                        // physics: const BouncingScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3, // 3 rows
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                        ),
+                        itemCount: _icons.length,
+                        itemBuilder: (context, index) {
+                          final icon = _icons[index];
+                          final bool isSelected =
+                              _selectedIcon.toString() == icon.toString();
+
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedIcon = icon),
+                            child: Icon(
+                              icon,
+                              size: isSelected
+                                  ? 23
+                                  : 20, // Increase size if selected
+                              color:
+                                  isSelected ? _selectedColor : Colors.black87,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton.icon(
+                            onPressed: () {
+                              _titleController.clear();
+                              _descriptionController.clear();
+                              Navigator.of(context).pop();
+                            },
+                            style: const ButtonStyle(
+                                backgroundColor:
+                                    MaterialStatePropertyAll(Colors.red),
+                                foregroundColor:
+                                    MaterialStatePropertyAll(Colors.white)),
+                            icon: const Icon(Icons.close_rounded),
+                            label: const Text('Cancel')),
+                        ElevatedButton.icon(
+                            onPressed: () => _createOrUpdateHabit(),
+                            style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue),
+                            icon: Icon(_isHabitAlreadyExist()
+                                ? CupertinoIcons.refresh_thick
+                                : CupertinoIcons.list_bullet_indent),
+                            label: Text(
+                                _isHabitAlreadyExist() ? 'Update' : 'Add')),
+                      ],
+                    )
+                  ],
+                ),
         ),
       ),
     );

@@ -16,7 +16,16 @@ class HabitAdapter extends TypeAdapter<Habit> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    final datasets = (fields[6] as Map).map<DateTime, int>(
+    final dataOfDay = (fields[4] as Map).map<DateTime, Map<String, int>>(
+      (key, value) => MapEntry(
+        key as DateTime,
+        (value as Map).map<String, int>(
+          (innerKey, innerValue) =>
+              MapEntry(innerKey as String, innerValue as int),
+        ),
+      ),
+    );
+    final datasets = (fields[5] as Map).map<DateTime, int>(
       (key, value) => MapEntry(key as DateTime, value as int),
     );
     return Habit(
@@ -24,24 +33,20 @@ class HabitAdapter extends TypeAdapter<Habit> {
       time: fields[1] as DateTime,
       title: fields[2] as String,
       description: fields[3] as String,
-      current: fields[4] as int,
-      target: fields[5] as int,
+      dataOfDay: dataOfDay,
       datasets: datasets,
-      streak: fields[7] as int,
-      isTodayTaskDone: fields[8] as bool,
-      color: Color(fields[9] as int),
-      // Convert int back to Color
+      color: Color(fields[6] as int),
       iconData: IconData(
-        fields[10] as int,
-        fontFamily: fields[11] as String?,
-      ), // Convert back to IconData
+        fields[7] as int,
+        fontFamily: fields[8] as String?,
+      ),
     );
   }
 
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -51,20 +56,14 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(3)
       ..write(obj.description)
       ..writeByte(4)
-      ..write(obj.current)
+      ..write(obj.dataOfDay)
       ..writeByte(5)
-      ..write(obj.target)
-      ..writeByte(6)
       ..write(obj.datasets)
-      ..writeByte(7)
-      ..write(obj.streak)
-      ..writeByte(8)
-      ..write(obj.isTodayTaskDone)
-      ..writeByte(9)
+      ..writeByte(6)
       ..write(obj.colorValue)
-      ..writeByte(10)
+      ..writeByte(7)
       ..write(obj.iconCodePoint)
-      ..writeByte(11)
+      ..writeByte(8)
       ..write(obj.iconFontFamily);
   }
 

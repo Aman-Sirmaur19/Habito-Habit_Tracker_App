@@ -4,14 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:in_app_update/in_app_update.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../main.dart';
-import '../secrets.dart';
 import '../models/habit.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/app_name.dart';
+import '../widgets/custom_heat_map.dart';
+import '../widgets/custom_banner_ad.dart';
 import '../widgets/main_drawer.dart';
 import '../widgets/circle_segment_widget.dart';
 import 'habit_screen.dart';
@@ -25,9 +25,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  late BannerAd bannerAd;
-  bool isBannerLoaded = false;
   int _expandedIndex = -1;
+  final _today =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   Future<void> _checkForUpdate() async {
     log('Checking for Update!');
@@ -51,32 +51,10 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  _initializeBannerAd() async {
-    bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: Secrets.bannerAdId,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            isBannerLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
-        },
-      ),
-      request: const AdRequest(),
-    );
-    bannerAd.load();
-  }
-
   @override
   void initState() {
     super.initState();
     _checkForUpdate();
-    _initializeBannerAd();
   }
 
   @override
@@ -121,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           )),
                   tooltip: 'Info',
-                  icon: const Icon(CupertinoIcons.info),
+                  icon: const Icon(Icons.info_outline_rounded, size: 27),
                 ),
                 IconButton(
                   onPressed: () => Navigator.push(
@@ -129,75 +107,76 @@ class _HomeScreenState extends State<HomeScreen>
                       CupertinoPageRoute(
                           builder: (_) => const HabitScreen(habit: null))),
                   tooltip: 'Add habit',
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 27),
                 ),
               ],
             ),
-            bottomNavigationBar: isBannerLoaded
-                ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-                : const SizedBox(),
+            bottomNavigationBar: const CustomBannerAd(),
             drawer: const MainDrawer(),
             body: habits.isEmpty
                 ? Center(
-                    child: SizedBox(
-                      width: 170,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/calender.png'),
-                            const SizedBox(height: 10),
-                            const Text(
-                                'A journey of a thousand miles begins with a single step!',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 15)),
-                            const SizedBox(height: 10),
-                            ElevatedButton(
-                                style: const ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStatePropertyAll(Colors.blue),
-                                  foregroundColor:
-                                      MaterialStatePropertyAll(Colors.white),
-                                ),
-                                onPressed: () => Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                        builder: (_) =>
-                                            const HabitScreen(habit: null))),
-                                child: const Text('Get Started'))
-                          ],
-                        ),
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset('assets/images/calender.png', width: 150),
+                        const SizedBox(height: 10),
+                        const Text(
+                            'A journey of a thousand\nmiles begins with a\nsingle step!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 15)),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                            style: const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Colors.blue),
+                              foregroundColor:
+                                  MaterialStatePropertyAll(Colors.white),
+                            ),
+                            onPressed: () => Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (_) =>
+                                        const HabitScreen(habit: null))),
+                            child: const Text('Get Started'))
+                      ],
                     ),
                   )
                 : ListView.builder(
                     itemCount: habits.length,
                     itemBuilder: (context, index) {
                       final isExpanded = _expandedIndex == index;
+                      final streak =
+                          Habit.calculateCurrentStreak(habits[index].dataOfDay);
                       for (var habit in habits) {
                         if (habit.time.day != DateTime.now().day) {
-                          if (habit.current != habit.target) {
-                            habit.streak = 0;
-                          }
+                          // if (habit.current != habit.target) {
+                          //   habit.streak = 0;
+                          // }
                           habit.time = DateTime.now();
-                          habit.current = 0;
-                          habit.isTodayTaskDone = false;
+                          final int current =
+                              habit.dataOfDay[_today]!['current']!;
+                          final int target =
+                              habit.dataOfDay[_today]!['target']!;
                           final percentForEachDay = <DateTime, int>{
-                            DateTime(
-                              DateTime.now().year,
-                              DateTime.now().month,
-                              DateTime.now().day,
-                            ): 10 * habit.current ~/ habit.target,
+                            _today: 10 * current ~/ target,
                           };
                           habit.datasets.addEntries(percentForEachDay.entries);
                           habit.save();
                         }
                       }
-                      return Card(
+                      return Container(
                           margin: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              width: 0.25,
+                              color: habits[index].color,
+                            ),
+                            color: habits[index].color.withOpacity(.03),
                           ),
                           child: Column(
                             children: [
@@ -205,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 contentPadding:
                                     const EdgeInsets.only(left: 5, right: 5),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
+                                    borderRadius: BorderRadius.circular(20)),
                                 onTap: () {
                                   setState(() {
                                     _expandedIndex = isExpanded
@@ -254,87 +233,58 @@ class _HomeScreenState extends State<HomeScreen>
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(20)),
                                       onTap: () {
+                                        habits[index].time = DateTime.now();
+                                        int current = habits[index]
+                                            .dataOfDay[_today]!['current']!;
+                                        int target = habits[index]
+                                            .dataOfDay[_today]!['target']!;
                                         setState(() {
-                                          if (habits[index].current ==
-                                              habits[index].target) {
-                                            habits[index].isTodayTaskDone =
-                                                false;
-                                            habits[index].streak--;
-                                            habits[index].current = 0;
+                                          if (current == target) {
+                                            current = 0;
                                             final percentForEachDay =
                                                 <DateTime, int>{
-                                              DateTime(
-                                                DateTime.now().year,
-                                                DateTime.now().month,
-                                                DateTime.now().day,
-                                              ): 10 *
-                                                  habits[index].current ~/
-                                                  habits[index].target,
+                                              _today: 10 * current ~/ target,
                                             };
                                             habits[index].datasets.addEntries(
                                                 percentForEachDay.entries);
                                           } else {
-                                            habits[index].current++;
-                                            if (habits[index].current ==
-                                                habits[index].target) {
-                                              habits[index].streak++;
-                                              habits[index].isTodayTaskDone =
-                                                  true;
-                                            }
+                                            current++;
                                             final percentForEachDay =
                                                 <DateTime, int>{
-                                              DateTime(
-                                                DateTime.now().year,
-                                                DateTime.now().month,
-                                                DateTime.now().day,
-                                              ): 10 *
-                                                  habits[index].current ~/
-                                                  habits[index].target,
+                                              _today: 10 * current ~/ target,
                                             };
                                             habits[index].datasets.addEntries(
                                                 percentForEachDay.entries);
                                           }
+                                          final updatedDataOfDay = Map<DateTime,
+                                                  Map<String, int>>.from(
+                                              habits[index].dataOfDay);
+                                          updatedDataOfDay[_today] = {
+                                            'current': current,
+                                            'target': target,
+                                          };
+                                          habits[index].dataOfDay =
+                                              updatedDataOfDay;
                                           habits[index].save();
                                         });
                                       },
                                       child: CircleSegmentWidget(
-                                        current: habits[index].current,
-                                        target: habits[index].target,
+                                        current: habits[index]
+                                            .dataOfDay[_today]!['current']!,
+                                        target: habits[index]
+                                            .dataOfDay[_today]!['target']!,
                                         color: habits[index].color,
                                       )),
                                 ),
-                                subtitle: HeatMap(
-                                  datasets: habits[index].datasets,
-                                  endDate: DateTime.now(),
-                                  scrollable: true,
-                                  showText: false,
-                                  showColorTip: false,
-                                  colorMode: ColorMode.color,
-                                  size: 10,
-                                  fontSize: 0,
-                                  borderRadius: 3.5,
-                                  margin: const EdgeInsets.all(1),
-                                  defaultColor: Colors.blueGrey.shade100,
-                                  onClick: (value) {
-                                    setState(() {
-                                      _expandedIndex = isExpanded
-                                          ? -1
-                                          : index; // Toggle expanded state
-                                    });
-                                  },
-                                  colorsets: {
-                                    1: habits[index].color.withOpacity(0.1),
-                                    2: habits[index].color.withOpacity(0.2),
-                                    3: habits[index].color.withOpacity(0.3),
-                                    4: habits[index].color.withOpacity(0.4),
-                                    5: habits[index].color.withOpacity(0.5),
-                                    6: habits[index].color.withOpacity(0.6),
-                                    7: habits[index].color.withOpacity(0.7),
-                                    8: habits[index].color.withOpacity(0.8),
-                                    9: habits[index].color.withOpacity(0.9),
-                                    10: habits[index].color,
-                                  },
-                                ),
+                                subtitle: CustomHeatMap(
+                                    habit: habits[index],
+                                    onClick: (value) {
+                                      setState(() {
+                                        _expandedIndex = isExpanded
+                                            ? -1
+                                            : index; // Toggle expanded state
+                                      });
+                                    }),
                               ),
                               if (isExpanded)
                                 Row(
@@ -359,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             color: Colors.orange,
                                           ),
                                           const SizedBox(width: 2),
-                                          Text(habits[index].streak.toString(),
+                                          Text(streak.toString(),
                                               style: const TextStyle(
                                                   color: Colors.orange,
                                                   fontWeight: FontWeight.bold)),
@@ -373,10 +323,24 @@ class _HomeScreenState extends State<HomeScreen>
                                                 context,
                                                 CupertinoPageRoute(
                                                     builder: (_) => HabitScreen(
-                                                        habit: habits[index]))),
-                                            tooltip: 'Edit',
+                                                          habit: habits[index],
+                                                          isCalender: true,
+                                                        ))),
+                                            tooltip: 'Edit Heatmap',
                                             icon: const Icon(
-                                                CupertinoIcons.pencil_outline)),
+                                              FontAwesomeIcons
+                                                  .solidCalendarDays,
+                                              color: Colors.green,
+                                            )),
+                                        IconButton(
+                                            onPressed: () => Navigator.push(
+                                                context,
+                                                CupertinoPageRoute(
+                                                    builder: (_) => HabitScreen(
+                                                        habit: habits[index]))),
+                                            tooltip: 'Edit Habit',
+                                            icon: const Icon(
+                                                FontAwesomeIcons.penToSquare)),
                                         IconButton(
                                             onPressed: () => showDialog(
                                                   context: context,
@@ -422,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 ),
                                             tooltip: 'Delete',
                                             icon: const Icon(
-                                                CupertinoIcons.delete_solid,
+                                                FontAwesomeIcons.solidTrashCan,
                                                 color: Colors.red)),
                                       ],
                                     ),

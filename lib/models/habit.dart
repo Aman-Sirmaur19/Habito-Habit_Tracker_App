@@ -19,39 +19,27 @@ class Habit extends HiveObject {
   String description;
 
   @HiveField(4)
-  int current;
+  Map<DateTime, Map<String, int>> dataOfDay;
 
   @HiveField(5)
-  int target;
-
-  @HiveField(6)
   Map<DateTime, int> datasets;
 
+  @HiveField(6)
+  int colorValue;
+
   @HiveField(7)
-  int streak;
+  int iconCodePoint;
 
   @HiveField(8)
-  bool isTodayTaskDone;
-
-  @HiveField(9)
-  int colorValue; // Store Color as int
-
-  @HiveField(10)
-  int iconCodePoint; // Store IconData's codePoint as int
-
-  @HiveField(11)
-  String? iconFontFamily; // Optional fontFamily for IconData
+  String? iconFontFamily;
 
   Habit({
     required this.id,
     required this.time,
     required this.title,
     required this.description,
-    required this.current,
-    required this.target,
+    required this.dataOfDay,
     required this.datasets,
-    required this.streak,
-    required this.isTodayTaskDone,
     required Color color,
     required IconData iconData,
   })  : colorValue = color.value,
@@ -71,11 +59,8 @@ class Habit extends HiveObject {
     required DateTime time,
     required String title,
     String? description,
-    int? current,
-    required int target,
+    required Map<DateTime, Map<String, int>> dataOfDay,
     Map<DateTime, int>? datasets,
-    int? streak,
-    required bool isTodayTaskDone,
     required Color color,
     required IconData iconData,
   }) =>
@@ -84,12 +69,39 @@ class Habit extends HiveObject {
         time: time,
         title: title,
         description: description ?? '',
-        current: current ?? 0,
-        target: target,
+        dataOfDay: dataOfDay,
         datasets: datasets ?? {},
-        streak: streak ?? 0,
-        isTodayTaskDone: isTodayTaskDone,
         color: color,
         iconData: iconData,
       );
+
+  static int calculateCurrentStreak(Map<DateTime, Map<String, int>> dataOfDay) {
+    // Normalize today's date to ignore time
+    DateTime today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    // Initialize streak count
+    int streak = 0;
+
+    // Start from today and iterate backwards
+    while (dataOfDay.containsKey(today)) {
+      final dayData = dataOfDay[today];
+      if (dayData?['current'] != dayData?['target']) {
+        // If today's task is incomplete, stop streak calculation
+        if (today ==
+            DateTime(DateTime.now().year, DateTime.now().month,
+                DateTime.now().day)) {
+          today = today.subtract(const Duration(days: 1));
+          continue;
+        }
+        break;
+      }
+
+      // Increment streak and move to the previous day
+      streak++;
+      today = today.subtract(const Duration(days: 1));
+    }
+
+    return streak;
+  }
 }
