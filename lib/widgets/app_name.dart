@@ -8,9 +8,9 @@ class AppName extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('Habit',
+        Text('Habit',
             style: TextStyle(
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               letterSpacing: 1,
               fontSize: 25,
               fontWeight: FontWeight.w700,

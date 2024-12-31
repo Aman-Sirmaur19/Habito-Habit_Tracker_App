@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../main.dart';
 import 'dialogs.dart';
@@ -35,7 +35,7 @@ class MainDrawer extends StatelessWidget {
         child: Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
-        Theme.of(context).colorScheme.inversePrimary,
+        Colors.blue.shade200,
         Colors.blue.shade400,
       ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
       child: Column(

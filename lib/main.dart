@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'models/habit.dart';
+import 'widgets/theme.dart';
 import 'screens/home_screen.dart';
 import 'data/hive_data_store.dart';
 
@@ -59,14 +60,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HabitO',
-      theme: ThemeData(
-        fontFamily: 'Fredoka',
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        iconButtonTheme: IconButtonThemeData(
-            style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all(Colors.blue))),
-        useMaterial3: true,
-      ),
+      theme: lightMode,
+      darkTheme: darkMode,
       home: const HomeScreen(),
     );
   }

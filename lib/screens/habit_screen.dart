@@ -291,7 +291,7 @@ class _HabitScreenState extends State<HabitScreen> {
                     const Text(
                       'More features coming soon',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -397,8 +397,9 @@ class _HabitScreenState extends State<HabitScreen> {
                               size: isSelected
                                   ? 23
                                   : 20, // Increase size if selected
-                              color:
-                                  isSelected ? _selectedColor : Colors.black87,
+                              color: isSelected
+                                  ? _selectedColor
+                                  : Theme.of(context).colorScheme.secondary,
                             ),
                           );
                         },
@@ -483,7 +484,7 @@ class _HabitScreenState extends State<HabitScreen> {
                 width: 70,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+                  color: Theme.of(context).colorScheme.tertiary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(

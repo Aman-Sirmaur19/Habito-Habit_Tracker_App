@@ -10,9 +10,9 @@ import '../main.dart';
 import '../models/habit.dart';
 import '../widgets/dialogs.dart';
 import '../widgets/app_name.dart';
+import '../widgets/main_drawer.dart';
 import '../widgets/custom_heat_map.dart';
 import '../widgets/custom_banner_ad.dart';
-import '../widgets/main_drawer.dart';
 import '../widgets/circle_segment_widget.dart';
 import 'habit_screen.dart';
 
@@ -297,7 +297,9 @@ class _HomeScreenState extends State<HomeScreen>
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5),
-                                          color: Colors.white),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .background),
                                       child: Row(
                                         children: [
                                           const Text('Current streak:\t',

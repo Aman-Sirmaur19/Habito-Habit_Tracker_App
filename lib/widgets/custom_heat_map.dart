@@ -34,7 +34,7 @@ class CustomHeatMap extends StatelessWidget {
       colorMode: ColorMode.color,
       size: size,
       fontSize: fontSize,
-      textColor: Colors.black,
+      textColor: Theme.of(context).colorScheme.secondary,
       borderRadius: borderRadius,
       margin: EdgeInsets.all(margin),
       defaultColor: habit.color.withOpacity(.075),
