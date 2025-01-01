@@ -145,26 +145,10 @@ class _HomeScreenState extends State<HomeScreen>
                 : ListView.builder(
                     itemCount: habits.length,
                     itemBuilder: (context, index) {
+                      Habit.setDataForNextDay(habits);
                       final isExpanded = _expandedIndex == index;
                       final streak =
                           Habit.calculateCurrentStreak(habits[index].dataOfDay);
-                      for (var habit in habits) {
-                        if (habit.time.day != DateTime.now().day) {
-                          // if (habit.current != habit.target) {
-                          //   habit.streak = 0;
-                          // }
-                          habit.time = DateTime.now();
-                          final int current =
-                              habit.dataOfDay[_today]!['current']!;
-                          final int target =
-                              habit.dataOfDay[_today]!['target']!;
-                          final percentForEachDay = <DateTime, int>{
-                            _today: 10 * current ~/ target,
-                          };
-                          habit.datasets.addEntries(percentForEachDay.entries);
-                          habit.save();
-                        }
-                      }
                       return Container(
                           margin: const EdgeInsets.symmetric(
                             horizontal: 10,

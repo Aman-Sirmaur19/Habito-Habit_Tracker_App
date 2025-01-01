@@ -75,6 +75,30 @@ class Habit extends HiveObject {
         iconData: iconData,
       );
 
+  static void setDataForNextDay(List<Habit> habits) {
+    final today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    for (var habit in habits) {
+      if (habit.time.day != DateTime.now().day) {
+        habit.time = DateTime.now();
+        final int oldTarget = habit
+            .dataOfDay[today.subtract(const Duration(days: 1))]!['target']!;
+        final updatedDataOfDay =
+            Map<DateTime, Map<String, int>>.from(habit.dataOfDay);
+        updatedDataOfDay[today] = {
+          'current': 0,
+          'target': oldTarget,
+        };
+        habit.dataOfDay = updatedDataOfDay;
+        final percentForEachDay = <DateTime, int>{
+          today: 10 * 0 ~/ oldTarget,
+        };
+        habit.datasets.addEntries(percentForEachDay.entries);
+        habit.save();
+      }
+    }
+  }
+
   static int calculateCurrentStreak(Map<DateTime, Map<String, int>> dataOfDay) {
     // Normalize today's date to ignore time
     DateTime today =
