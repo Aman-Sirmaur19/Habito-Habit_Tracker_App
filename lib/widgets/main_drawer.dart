@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../main.dart';
 import 'dialogs.dart';
@@ -128,67 +127,47 @@ class MainDrawer extends StatelessWidget {
                     content: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        IconButton(
-                          onPressed: () async {
-                            const url = 'https://x.com/AmanSirmaur';
-                            _launchInBrowser(context, Uri.parse(url));
-                          },
-                          tooltip: 'X',
-                          icon: const Icon(
-                            FontAwesomeIcons.squareXTwitter,
-                            color: Colors.black,
-                            size: 30,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () async {
+                        InkWell(
+                          child: Image.asset('assets/images/youtube.png',
+                              width: mq.width * .07),
+                          onTap: () async {
                             const url = 'https://www.youtube.com/@AmanSirmaur';
                             _launchInBrowser(context, Uri.parse(url));
                           },
-                          tooltip: 'YouTube',
-                          icon: const Icon(
-                            FontAwesomeIcons.youtube,
-                            color: Colors.red,
-                            size: 27,
-                          ),
                         ),
-                        IconButton(
-                          onPressed: () async {
-                            const url =
-                                'https://www.linkedin.com/in/aman-kumar-257613257/';
+                        InkWell(
+                          child: Image.asset('assets/images/twitter.png',
+                              width: mq.width * .07),
+                          onTap: () async {
+                            const url = 'https://x.com/AmanSirmaur';
                             _launchInBrowser(context, Uri.parse(url));
                           },
-                          tooltip: 'LinkedIn',
-                          icon: Icon(
-                            FontAwesomeIcons.linkedin,
-                            color: Colors.blue.shade800,
-                            size: 30,
-                          ),
                         ),
-                        IconButton(
-                          onPressed: () async {
+                        InkWell(
+                          child: Image.asset('assets/images/instagram.png',
+                              width: mq.width * .07),
+                          onTap: () async {
                             const url =
                                 'https://www.instagram.com/aman_sirmaur19/';
                             _launchInBrowser(context, Uri.parse(url));
                           },
-                          tooltip: 'Instagram',
-                          icon: const Icon(
-                            FontAwesomeIcons.instagram,
-                            color: Colors.pink,
-                            size: 30,
-                          ),
                         ),
-                        IconButton(
-                          onPressed: () async {
+                        InkWell(
+                          child: Image.asset('assets/images/github.png',
+                              width: mq.width * .07),
+                          onTap: () async {
                             const url = 'https://github.com/Aman-Sirmaur19';
                             _launchInBrowser(context, Uri.parse(url));
                           },
-                          tooltip: 'Github',
-                          icon: const Icon(
-                            FontAwesomeIcons.squareGithub,
-                            color: Colors.black,
-                            size: 30,
-                          ),
+                        ),
+                        InkWell(
+                          child: Image.asset('assets/images/linkedin.png',
+                              width: mq.width * .07),
+                          onTap: () async {
+                            const url =
+                                'https://www.linkedin.com/in/aman-kumar-257613257/';
+                            _launchInBrowser(context, Uri.parse(url));
+                          },
                         ),
                       ],
                     ),
