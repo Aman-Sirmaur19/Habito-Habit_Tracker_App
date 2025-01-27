@@ -13,40 +13,83 @@ class CustomBannerAd extends StatefulWidget {
 }
 
 class _CustomBannerAdState extends State<CustomBannerAd> {
-  late BannerAd bannerAd;
-  bool isBannerLoaded = false;
+  late BannerAd _bannerAd;
+  bool _isBannerAdLoaded = false;
+  late NativeAd _nativeAd;
+  bool _isNativeAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeBannerAd();
+    _initializeNativeAd();
   }
 
-  _initializeBannerAd() async {
-    bannerAd = BannerAd(
+  Future<void> _initializeBannerAd() async {
+    _bannerAd = BannerAd(
       size: AdSize.banner,
       adUnitId: Secrets.bannerAdId,
+      request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {
-            isBannerLoaded = true;
+            _isBannerAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
           ad.dispose();
-          isBannerLoaded = false;
-          log(error.message);
+          _isBannerAdLoaded = false;
+          log('Failed to load banner ad: ${error.message}');
         },
       ),
-      request: const AdRequest(),
     );
-    bannerAd.load();
+    try {
+      _bannerAd.load();
+    } catch (error) {
+      log('Error loading banner ad: $error');
+      setState(() {
+        _isBannerAdLoaded = false;
+      });
+    }
+  }
+
+  Future<void> _initializeNativeAd() async {
+    _nativeAd = NativeAd(
+      adUnitId: Secrets.nativeAdId,
+      request: const AdRequest(),
+      nativeTemplateStyle:
+          NativeTemplateStyle(templateType: TemplateType.small),
+      listener: NativeAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isNativeAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load native ad: ${error.message}');
+          ad.dispose();
+          setState(() {
+            _isNativeAdLoaded = false;
+          });
+          _initializeBannerAd();
+        },
+      ),
+    );
+    try {
+      await _nativeAd.load();
+    } catch (error) {
+      log('Error loading native ad: $error');
+      setState(() {
+        _isNativeAdLoaded = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return isBannerLoaded
-        ? SizedBox(height: 50, child: AdWidget(ad: bannerAd))
-        : const SizedBox();
+    return _isNativeAdLoaded
+        ? SizedBox(height: 85, child: AdWidget(ad: _nativeAd))
+        : _isBannerAdLoaded
+            ? SizedBox(height: 50, child: AdWidget(ad: _bannerAd))
+            : const SizedBox();
   }
 }
