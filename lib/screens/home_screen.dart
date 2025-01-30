@@ -217,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       borderRadius: const BorderRadius.all(
                                           Radius.circular(20)),
                                       onTap: () {
-                                        habits[index].time = DateTime.now();
+                                        habits[index].time = _today;
                                         int current = habits[index]
                                             .dataOfDay[_today]!['current']!;
                                         int target = habits[index]

@@ -25,9 +25,11 @@ class CustomHeatMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     return HeatMap(
       datasets: habit.datasets,
-      endDate: DateTime.now(),
+      endDate: _today,
       scrollable: true,
       showText: showText,
       showColorTip: false,

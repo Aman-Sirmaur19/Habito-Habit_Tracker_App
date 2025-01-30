@@ -79,8 +79,9 @@ class Habit extends HiveObject {
     final today =
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     for (var habit in habits) {
-      if (habit.time.day != DateTime.now().day) {
-        DateTime lastUpdated = habit.time;
+      final lastUpdated =
+          DateTime(habit.time.year, habit.time.month, habit.time.day);
+      if (lastUpdated != today) {
         habit.time = today;
         final int oldTarget = habit.dataOfDay[lastUpdated]!['target']!;
         final updatedDataOfDay =

@@ -128,6 +128,8 @@ class _HabitScreenState extends State<HabitScreen> {
 
   // Main function for creating habit
   dynamic _createOrUpdateHabit() {
+    final today =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     if (_titleController.text.trim().isEmpty) {
       Dialogs.showErrorSnackBar(context, 'Enter your plan');
       return;
@@ -151,25 +153,25 @@ class _HabitScreenState extends State<HabitScreen> {
         // Update existing habit
         final oldHabit = widget.habit!;
         final updatedDatasets = Map<DateTime, int>.from(oldHabit.datasets);
-        int oldCurrent = oldHabit.dataOfDay[_today]!['current']!;
-        int oldTarget = oldHabit.dataOfDay[_today]!['target']!;
+        int oldCurrent = oldHabit.dataOfDay[today]!['current']!;
+        int oldTarget = oldHabit.dataOfDay[today]!['target']!;
         if (oldTarget != _target) {
           final updatedDataOfDay =
               Map<DateTime, Map<String, int>>.from(widget.habit!.dataOfDay);
 
           // Update only the current day's data
-          updatedDataOfDay[_today] = {
+          updatedDataOfDay[today] = {
             'current': oldCurrent >= _target ? _target : oldCurrent,
             'target': _target,
           };
           widget.habit!.dataOfDay = updatedDataOfDay;
           final percentForToday = (10 * oldCurrent ~/ _target);
-          updatedDatasets[_today] = percentForToday;
+          updatedDatasets[today] = percentForToday;
         }
 
         // Replace the old habit with updated values
         final updatedHabit = Habit.create(
-          time: oldHabit.time,
+          time: today,
           title: title,
           description: description,
           dataOfDay: oldHabit.dataOfDay,
@@ -186,13 +188,13 @@ class _HabitScreenState extends State<HabitScreen> {
       } else {
         // Create new habit
         final newHabit = Habit.create(
-          time: DateTime.now(),
+          time: today,
           title: title,
           description: description,
           dataOfDay: {
-            _today: {'current': 0, 'target': _target}
+            today: {'current': 0, 'target': _target}
           },
-          datasets: {_today: 0},
+          datasets: {today: 0},
           color: _selectedColor,
           iconData: _selectedIcon,
         );
